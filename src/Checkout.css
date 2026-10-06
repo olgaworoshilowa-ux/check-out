@@ -5,10 +5,16 @@
 }
 
 .checkout__top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 40px;
+  background: color-mix(in srgb, var(--bg-beta) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .btn-back,
@@ -367,7 +373,13 @@
   width: 360px;
   flex-shrink: 0;
   position: sticky;
-  top: 40px;
+  /* Sit below sticky header: 40 + 56 + 40 */
+  top: 136px;
+  align-self: flex-start;
+  max-height: calc(100vh - 152px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .summary {
@@ -698,6 +710,8 @@
     position: static;
     width: 100%;
     max-width: 368px;
+    max-height: none;
+    overflow: visible;
   }
 
   .checkout__form {

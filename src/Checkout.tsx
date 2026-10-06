@@ -129,7 +129,7 @@ export default function Checkout({
           </span>
           Back
         </button>
-        <button type="button" className="btn-icon" aria-label="Close">
+        <button type="button" className="btn-icon" aria-label="Close" onClick={onBack}>
           <span className="btn__glyph" aria-hidden="true">
             <img src={asset('close.svg')} alt="" />
           </span>
@@ -417,7 +417,7 @@ export default function Checkout({
           ) : null}
         </form>
 
-        <aside className="checkout__sidebar">
+        <aside className="checkout__sidebar" aria-label="Order summary">
           <div className={`summary${isPro ? ' summary--pro' : ''}${summary.isTrial ? ' summary--trial' : ''}`}>
             <div
               className={`summary__glow ${isPro ? 'summary__glow--lilac' : 'summary__glow--lime'}`}
