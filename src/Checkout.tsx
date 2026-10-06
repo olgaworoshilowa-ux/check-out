@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { asset } from './assets'
+import { buildSummary, type CheckoutSelection } from './plan'
 import './Checkout.css'
 
 type PaymentMethod = 'card' | 'apple' | 'paypal'
 
-const SUBTOTAL = 239.88
-const DISCOUNT = 180
 const VAT_RATE = 0.18
-const BASE_TOTAL = SUBTOTAL - DISCOUNT
 
 function formatMoney(value: number) {
   return `$${value.toFixed(2)}`
@@ -40,7 +38,13 @@ function isCardComplete(cardNumber: string, expiration: string, cvc: string) {
   )
 }
 
-export default function Checkout({ onBack }: { onBack?: () => void }) {
+export default function Checkout({
+  onBack,
+  selection,
+}: {
+  onBack?: () => void
+  selection: CheckoutSelection
+}) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [cardNumber, setCardNumber] = useState('')
   const [expiration, setExpiration] = useState('')
@@ -101,8 +105,10 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
   const showBusinessToggle = paymentMethod === 'card' && unlockedBusinessToggle
   const showBusinessFields = showBusinessToggle && isBusiness
 
-  const vat = showBusinessFields ? Number((BASE_TOTAL * VAT_RATE).toFixed(2)) : 0
-  const total = Number((BASE_TOTAL + vat).toFixed(2))
+  const summary = useMemo(() => buildSummary(selection), [selection])
+  const vat = showBusinessFields ? Number((summary.total * VAT_RATE).toFixed(2)) : 0
+  const total = Number((summary.total + vat).toFixed(2))
+  const isPro = summary.tone === 'pro'
 
   const addressLabel = useMemo(
     () => (showExtendedAddress ? 'Address line 1' : 'Address'),
@@ -411,25 +417,35 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
         </form>
 
         <aside className="checkout__sidebar">
-          <div className="summary">
-            <div className="summary__glow summary__glow--lime" aria-hidden="true" />
-            <div className="summary__glow summary__glow--mint" aria-hidden="true" />
+          <div className={`summary${isPro ? ' summary--pro' : ''}`}>
+            <div
+              className={`summary__glow ${isPro ? 'summary__glow--lilac' : 'summary__glow--lime'}`}
+              aria-hidden="true"
+            />
+            <div
+              className={`summary__glow ${isPro ? 'summary__glow--sky' : 'summary__glow--mint'}`}
+              aria-hidden="true"
+            />
             <div className="summary__content">
-              <h2 className="summary__title">Premium</h2>
-              <p className="summary__subtitle">Design faster with AI</p>
+              <h2 className="summary__title">{summary.title}</h2>
+              <p className="summary__subtitle">{summary.subtitle}</p>
 
               <div className="summary__rows">
                 <div className="summary__row">
                   <span>Subtotal</span>
-                  <span>{formatMoney(SUBTOTAL)}</span>
+                  <span>{formatMoney(summary.subtotal)}</span>
                 </div>
-                <div className="summary__row">
-                  <span className="summary__row-left">
-                    Annual discount
-                    <span className="badge">33% OFF</span>
-                  </span>
-                  <span>–{formatMoney(DISCOUNT)}</span>
-                </div>
+                {summary.discount != null ? (
+                  <div className="summary__row">
+                    <span className="summary__row-left">
+                      Annual discount
+                      {summary.showAnnualBadge ? (
+                        <span className={`badge${isPro ? ' badge--dark' : ''}`}>33% OFF</span>
+                      ) : null}
+                    </span>
+                    <span>–{formatMoney(summary.discount)}</span>
+                  </div>
+                ) : null}
                 {showBusinessFields ? (
                   <div className="summary__row reveal">
                     <span>VAT 18%</span>
@@ -442,7 +458,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
                 <span>Total</span>
                 <span>{formatMoney(total)}</span>
               </div>
-              <p className="summary__note">Billed yearly · $4.99 a month</p>
+              <p className="summary__note">{summary.note}</p>
             </div>
           </div>
 
@@ -456,8 +472,16 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
               <img src={asset('apple-pay.svg')} alt="" className="btn-apple-pay__logo" />
             </button>
           ) : (
-            <button type="button" className="btn-pay" onClick={handleSubmit}>
-              {paymentMethod === 'paypal' ? `Pay with PayPal · ${formatMoney(total)}` : `Pay ${formatMoney(total)}`}
+            <button
+              type="button"
+              className={`btn-pay${isPro ? ' btn-pay--pro' : ''}`}
+              onClick={handleSubmit}
+            >
+              {paymentMethod === 'paypal'
+                ? `Pay with PayPal · ${formatMoney(total)}`
+                : selection.freeTrial && selection.plan === 'pro'
+                  ? summary.payLabel
+                  : `Pay ${formatMoney(total)}`}
             </button>
           )}
 

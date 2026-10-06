@@ -1,5 +1,11 @@
 import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { asset } from './assets'
+import {
+  PRO_PRICING,
+  type BillingPeriod,
+  type CheckoutSelection,
+  type CreditTier,
+} from './plan'
 import './UpgradePlan.css'
 
 const PREMIUM_FEATURES = [
@@ -18,14 +24,8 @@ const PRO_FEATURES = [
   'Branded profile',
 ]
 
-const CREDIT_OPTIONS = [3000, 5000, 8000] as const
+const CREDIT_OPTIONS: CreditTier[] = [3000, 5000, 8000]
 const KNOB_SIZE = 26
-
-const PRO_PRICING = {
-  3000: { monthly: 49.99, annualMonthly: 33.33, yearly: 400.88 },
-  5000: { monthly: 79.99, annualMonthly: 53.33, yearly: 639.96 },
-  8000: { monthly: 119.99, annualMonthly: 79.99, yearly: 959.88 },
-} as const
 
 /** Same ratio as Premium: 1,000 credits ≈ 120 room looks / 600 Copilot replies */
 const CREDIT_USAGE = {
@@ -43,12 +43,12 @@ function formatCount(value: number) {
 }
 
 type UpgradePlanProps = {
-  onGetPremium: () => void
+  onContinue: (selection: CheckoutSelection) => void
   onClose?: () => void
 }
 
-export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps) {
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
+export default function UpgradePlan({ onContinue, onClose }: UpgradePlanProps) {
+  const [billing, setBilling] = useState<BillingPeriod>('annual')
   const [creditIndex, setCreditIndex] = useState(0)
   const [freeTrial, setFreeTrial] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -200,7 +200,18 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               <span className="plan-card__period">/ month</span>
             </div>
 
-            <button type="button" className="plan-card__cta plan-card__cta--premium" onClick={onGetPremium}>
+            <button
+              type="button"
+              className="plan-card__cta plan-card__cta--premium"
+              onClick={() =>
+                onContinue({
+                  plan: 'premium',
+                  billing,
+                  credits,
+                  freeTrial: false,
+                })
+              }
+            >
               Get Premium
             </button>
             <p className="plan-card__note">{premiumNote}</p>
@@ -331,7 +342,18 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               <span className="plan-card__period">/ month</span>
             </div>
 
-            <button type="button" className="plan-card__cta plan-card__cta--pro" onClick={onGetPremium}>
+            <button
+              type="button"
+              className="plan-card__cta plan-card__cta--pro"
+              onClick={() =>
+                onContinue({
+                  plan: 'pro',
+                  billing,
+                  credits,
+                  freeTrial,
+                })
+              }
+            >
               {freeTrial ? 'Try Pro for 7 days' : 'Get Pro'}
             </button>
             <p className="plan-card__note">{proNote}</p>

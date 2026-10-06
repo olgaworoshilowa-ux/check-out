@@ -406,6 +406,22 @@
   transform: rotate(-56deg);
 }
 
+.summary__glow--lilac {
+  background: #d3aaff;
+  opacity: 0.3;
+  top: -168px;
+  left: -3px;
+  transform: rotate(-56deg);
+}
+
+.summary__glow--sky {
+  background: #aad0ff;
+  opacity: 0.3;
+  top: 27px;
+  left: -35px;
+  transform: rotate(-56deg);
+}
+
 .summary__content {
   position: relative;
   z-index: 1;
@@ -466,6 +482,11 @@
   white-space: nowrap;
 }
 
+.badge--dark {
+  background: #1c1c1c;
+  color: #fff;
+}
+
 .summary__total {
   display: flex;
   align-items: center;
@@ -505,6 +526,11 @@
   letter-spacing: -0.2px;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btn-pay--pro {
+  background: #171719;
+  color: #fff;
 }
 
 .btn-pay:hover {
