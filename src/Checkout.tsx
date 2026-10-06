@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { asset } from './assets'
 import './Checkout.css'
 
 type PaymentMethod = 'card' | 'apple' | 'paypal'
@@ -117,13 +118,13 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
       <header className="checkout__top">
         <button type="button" className="btn-back" aria-label="Back" onClick={onBack}>
           <span className="btn__glyph" aria-hidden="true">
-            <img src="/assets/back.svg" alt="" />
+            <img src={asset('back.svg')} alt="" />
           </span>
           Back
         </button>
         <button type="button" className="btn-icon" aria-label="Close">
           <span className="btn__glyph" aria-hidden="true">
-            <img src="/assets/close.svg" alt="" />
+            <img src={asset('close.svg')} alt="" />
           </span>
         </button>
       </header>
@@ -141,7 +142,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
               onClick={() => setPaymentMethod('card')}
             >
               <span className="payment-method__icon payment-method__icon--card">
-                <img src="/assets/card-icon.svg" alt="" />
+                <img src={asset('card-icon.svg')} alt="" />
               </span>
               <span className="payment-method__label">Card</span>
             </button>
@@ -154,7 +155,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
               onClick={() => setPaymentMethod('apple')}
             >
               <span className="payment-method__icon payment-method__icon--wide">
-                <img src="/assets/apple-pay.svg" alt="" />
+                <img src={asset('apple-pay.svg')} alt="" />
               </span>
               <span className="payment-method__label">Apple Pay</span>
             </button>
@@ -167,7 +168,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
               onClick={() => setPaymentMethod('paypal')}
             >
               <span className="payment-method__icon payment-method__icon--paypal">
-                <img src="/assets/paypal.svg" alt="" />
+                <img src={asset('paypal.svg')} alt="" />
               </span>
               <span className="payment-method__label">PayPal</span>
             </button>
@@ -188,13 +189,13 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
                 />
                 <div className="field__brands" aria-hidden="true">
                   <span className="brand-badge">
-                    <img src="/assets/mastercard.svg" alt="" />
+                    <img src={asset('mastercard.svg')} alt="" />
                   </span>
                   <span className="brand-badge">
-                    <img src="/assets/visa.svg" alt="" />
+                    <img src={asset('visa.svg')} alt="" />
                   </span>
                   <span className="brand-badge brand-badge--amex">
-                    <img src="/assets/amex.svg" alt="" />
+                    <img src={asset('amex.svg')} alt="" />
                   </span>
                 </div>
               </Field>
@@ -310,7 +311,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
                   <option>France</option>
                 </select>
                 <span className="field__chevron" aria-hidden="true">
-                  <img src="/assets/chevron-down.svg" alt="" />
+                  <img src={asset('chevron-down.svg')} alt="" />
                 </span>
               </Field>
 
@@ -365,7 +366,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
                   onChange={(e) => setIsBusiness(e.target.checked)}
                 />
                 <span className={`checkbox${isBusiness ? ' checkbox--checked' : ''}`}>
-                  {isBusiness ? <img src="/assets/check.svg" alt="" /> : null}
+                  {isBusiness ? <img src={asset('check.svg')} alt="" /> : null}
                 </span>
                 <span className="checkbox-row__label">I&apos;m buying as a business</span>
               </label>
@@ -392,7 +393,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
                         <option value="US EIN">US EIN</option>
                       </select>
                       <span className="field__chevron" aria-hidden="true">
-                        <img src="/assets/chevron-down.svg" alt="" />
+                        <img src={asset('chevron-down.svg')} alt="" />
                       </span>
                     </Field>
                     <Field label="Tax ID">
@@ -452,7 +453,7 @@ export default function Checkout({ onBack }: { onBack?: () => void }) {
               onClick={handleSubmit}
               aria-label={`Pay ${formatMoney(total)} with Apple Pay`}
             >
-              <img src="/assets/apple-pay.svg" alt="" className="btn-apple-pay__logo" />
+              <img src={asset('apple-pay.svg')} alt="" className="btn-apple-pay__logo" />
             </button>
           ) : (
             <button type="button" className="btn-pay" onClick={handleSubmit}>

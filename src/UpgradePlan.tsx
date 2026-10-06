@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { asset } from './assets'
 import './UpgradePlan.css'
 
 const PREMIUM_FEATURES = [
@@ -95,7 +96,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
       <header className="upgrade__top">
         <button type="button" className="btn-icon" aria-label="Close" onClick={onClose}>
           <span className="btn__glyph" aria-hidden="true">
-            <img src="/assets/upgrade-close.svg" alt="" />
+            <img src={asset('upgrade-close.svg')} alt="" />
           </span>
         </button>
       </header>
@@ -142,7 +143,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
             <div className="feature-box">
               <div className="feature-box__row">
                 <span className="feature-box__icon">
-                  <img src="/assets/upgrade-generator-green.svg" alt="" />
+                  <img src={asset('upgrade-generator-green.svg')} alt="" />
                 </span>
                 <p className="feature-box__title">1,000 credits every month</p>
               </div>
@@ -151,14 +152,14 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               </p>
               <div className="feature-box__chip">
                 <span className="feature-box__chip-icon">
-                  <img src="/assets/upgrade-check.svg" alt="" />
+                  <img src={asset('upgrade-check.svg')} alt="" />
                 </span>
                 Fixed amount of credits
               </div>
             </div>
 
             <div className="plan-card__notch" aria-hidden="true">
-              <img src="/assets/upgrade-flash-bg.svg" alt="" />
+              <img src={asset('upgrade-flash-bg.svg')} alt="" />
             </div>
 
             <div className="access-box">
@@ -167,7 +168,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                 <p className="access-box__desc">All 1,000 credits right away</p>
               </div>
               <span className="access-box__flash">
-                <img src="/assets/upgrade-flash.svg" alt="" />
+                <img src={asset('upgrade-flash.svg')} alt="" />
               </span>
             </div>
 
@@ -177,7 +178,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                   {premiumOld}
                   <img
                     className="plan-card__strike"
-                    src="/assets/upgrade-strikethrough.svg"
+                    src={asset('upgrade-strikethrough.svg')}
                     alt=""
                   />
                 </span>
@@ -198,7 +199,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               {PREMIUM_FEATURES.map((item) => (
                 <li key={item}>
                   <span className="plan-card__check">
-                    <img src="/assets/upgrade-check-green.svg" alt="" />
+                    <img src={asset('upgrade-check-green.svg')} alt="" />
                   </span>
                   {item}
                 </li>
@@ -219,7 +220,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
             <div className="feature-box feature-box--pro">
               <div className="feature-box__row">
                 <span className="feature-box__icon">
-                  <img src="/assets/upgrade-generator-purple.svg" alt="" />
+                  <img src={asset('upgrade-generator-purple.svg')} alt="" />
                 </span>
                 <p className="feature-box__title">
                   {credits.toLocaleString('en-US')} credits every month
@@ -262,7 +263,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                     className="credit-slider__knob"
                     style={{ left: `calc(${t} * (100% - ${KNOB_SIZE}px))` }}
                   >
-                    <img src="/assets/upgrade-slider-arrows.svg" alt="" />
+                    <img src={asset('upgrade-slider-arrows.svg')} alt="" />
                   </div>
                 </div>
                 <div className="credit-slider__labels">
@@ -281,7 +282,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
             </div>
 
             <div className="plan-card__notch" aria-hidden="true">
-              <img src="/assets/upgrade-strikethrough-2.svg" alt="" />
+              <img src={asset('upgrade-strikethrough-2.svg')} alt="" />
             </div>
 
             <div className="access-box">
@@ -298,7 +299,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                 onClick={() => setFreeTrial((v) => !v)}
               >
                 <img
-                  src={freeTrial ? '/assets/upgrade-toggle-on.svg' : '/assets/upgrade-toggle-off.svg'}
+                  src={freeTrial ? asset('upgrade-toggle-on.svg') : asset('upgrade-toggle-off.svg')}
                   alt=""
                 />
               </button>
@@ -310,7 +311,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                   {proOld}
                   <img
                     className="plan-card__strike"
-                    src="/assets/upgrade-strikethrough.svg"
+                    src={asset('upgrade-strikethrough.svg')}
                     alt=""
                   />
                 </span>
@@ -319,7 +320,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               <span className="plan-card__period">/ month</span>
             </div>
 
-            <button type="button" className="plan-card__cta plan-card__cta--pro">
+            <button type="button" className="plan-card__cta plan-card__cta--pro" onClick={onGetPremium}>
               {freeTrial ? 'Try Pro for 7 days' : 'Get Pro'}
             </button>
             <p className="plan-card__note">{proNote}</p>
@@ -331,7 +332,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
               {PRO_FEATURES.map((item) => (
                 <li key={item}>
                   <span className="plan-card__check">
-                    <img src="/assets/upgrade-check-green.svg" alt="" />
+                    <img src={asset('upgrade-check-green.svg')} alt="" />
                   </span>
                   {item}
                 </li>
@@ -351,7 +352,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
         <button type="button" className="upgrade__footer-link">
           Buy credits
           <span className="upgrade__footer-arrow">
-            <img src="/assets/upgrade-arrow-right.svg" alt="" />
+            <img src={asset('upgrade-arrow-right.svg')} alt="" />
           </span>
         </button>
       </div>
