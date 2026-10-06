@@ -27,8 +27,19 @@ const PRO_PRICING = {
   8000: { monthly: 119.99, annualMonthly: 79.99, yearly: 959.88 },
 } as const
 
+/** Same ratio as Premium: 1,000 credits ≈ 120 room looks / 600 Copilot replies */
+const CREDIT_USAGE = {
+  3000: { roomLooks: 360, copilot: 1800 },
+  5000: { roomLooks: 600, copilot: 3000 },
+  8000: { roomLooks: 960, copilot: 4800 },
+} as const
+
 function formatPrice(value: number) {
   return `$${value.toFixed(2)}`
+}
+
+function formatCount(value: number) {
+  return value.toLocaleString('en-US')
 }
 
 type UpgradePlanProps = {
@@ -81,6 +92,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
     billing === 'annual' ? '$59.88 billed yearly' : 'Billed monthly'
 
   const proPricing = PRO_PRICING[credits]
+  const proUsage = CREDIT_USAGE[credits]
   const proPrice =
     billing === 'annual'
       ? formatPrice(proPricing.annualMonthly)
@@ -90,6 +102,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
     billing === 'annual'
       ? `Free until Oct 10, then ${formatPrice(proPricing.yearly)}/year`
       : `Free until Oct 10, then ${formatPrice(proPricing.monthly)}/month`
+  const proDesc = `About ${formatCount(proUsage.roomLooks)} room looks or ${formatCount(proUsage.copilot)} Copilot replies a month`
 
   return (
     <div className="upgrade">
@@ -226,9 +239,7 @@ export default function UpgradePlan({ onGetPremium, onClose }: UpgradePlanProps)
                   {credits.toLocaleString('en-US')} credits every month
                 </p>
               </div>
-              <p className="feature-box__desc">
-                About 120 room looks or 600 Copilot replies a month
-              </p>
+              <p className="feature-box__desc">{proDesc}</p>
 
               <div className="credit-slider">
                 <div
