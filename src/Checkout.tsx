@@ -106,8 +106,9 @@ export default function Checkout({
   const showBusinessFields = showBusinessToggle && isBusiness
 
   const summary = useMemo(() => buildSummary(selection), [selection])
-  const vat = showBusinessFields ? Number((summary.total * VAT_RATE).toFixed(2)) : 0
-  const total = Number((summary.total + vat).toFixed(2))
+  const vatBase = summary.isTrial ? summary.dueToday : summary.totalAfter
+  const vat = showBusinessFields ? Number((vatBase * VAT_RATE).toFixed(2)) : 0
+  const total = Number((vatBase + vat).toFixed(2))
   const isPro = summary.tone === 'pro'
 
   const addressLabel = useMemo(
@@ -417,7 +418,7 @@ export default function Checkout({
         </form>
 
         <aside className="checkout__sidebar">
-          <div className={`summary${isPro ? ' summary--pro' : ''}`}>
+          <div className={`summary${isPro ? ' summary--pro' : ''}${summary.isTrial ? ' summary--trial' : ''}`}>
             <div
               className={`summary__glow ${isPro ? 'summary__glow--lilac' : 'summary__glow--lime'}`}
               aria-hidden="true"
@@ -427,7 +428,12 @@ export default function Checkout({
               aria-hidden="true"
             />
             <div className="summary__content">
-              <h2 className="summary__title">{summary.title}</h2>
+              <div className="summary__heading">
+                <h2 className="summary__title">{summary.title}</h2>
+                {summary.showTrialBadge ? (
+                  <span className="badge badge--soft">+ 7 days for free</span>
+                ) : null}
+              </div>
               <p className="summary__subtitle">{summary.subtitle}</p>
 
               <div className="summary__rows">
@@ -446,6 +452,29 @@ export default function Checkout({
                     <span>–{formatMoney(summary.discount)}</span>
                   </div>
                 ) : null}
+
+                {summary.isTrial ? (
+                  <>
+                    <div className="summary__row">
+                      <span>Total after trial</span>
+                      <span>{formatMoney(summary.totalAfter)}</span>
+                    </div>
+                    {summary.note ? <p className="summary__note summary__note--flush">{summary.note}</p> : null}
+                    <div className="summary__row summary__row--trial">
+                      <span className="summary__trial-label">
+                        <img
+                          className="summary__trial-highlight"
+                          src={asset('trial-row-highlight.svg')}
+                          alt=""
+                          aria-hidden="true"
+                        />
+                        <span>7 day trial</span>
+                      </span>
+                      <span>$0 today</span>
+                    </div>
+                  </>
+                ) : null}
+
                 {showBusinessFields ? (
                   <div className="summary__row reveal">
                     <span>VAT 18%</span>
@@ -454,11 +483,25 @@ export default function Checkout({
                 ) : null}
               </div>
 
-              <div className="summary__total">
-                <span>Total</span>
-                <span>{formatMoney(total)}</span>
-              </div>
-              <p className="summary__note">{summary.note}</p>
+              {summary.isTrial ? (
+                <>
+                  <div className="summary__total">
+                    <span>Due today</span>
+                    <span>{formatMoney(total)}</span>
+                  </div>
+                  {summary.cancelNote ? (
+                    <p className="summary__note">{summary.cancelNote}</p>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <div className="summary__total">
+                    <span>Total</span>
+                    <span>{formatMoney(total)}</span>
+                  </div>
+                  {summary.note ? <p className="summary__note">{summary.note}</p> : null}
+                </>
+              )}
             </div>
           </div>
 
@@ -467,7 +510,11 @@ export default function Checkout({
               type="button"
               className="btn-apple-pay"
               onClick={handleSubmit}
-              aria-label={`Pay ${formatMoney(total)} with Apple Pay`}
+              aria-label={
+                summary.isTrial
+                  ? 'Start trial for $0 with Apple Pay'
+                  : `Pay ${formatMoney(total)} with Apple Pay`
+              }
             >
               <img src={asset('apple-pay.svg')} alt="" className="btn-apple-pay__logo" />
             </button>
@@ -478,16 +525,18 @@ export default function Checkout({
               onClick={handleSubmit}
             >
               {paymentMethod === 'paypal'
-                ? `Pay with PayPal · ${formatMoney(total)}`
-                : selection.freeTrial && selection.plan === 'pro'
+                ? summary.isTrial
+                  ? 'Start trial with PayPal · $0'
+                  : `Pay with PayPal · ${formatMoney(total)}`
+                : summary.isTrial
                   ? summary.payLabel
                   : `Pay ${formatMoney(total)}`}
             </button>
           )}
 
           <p className="legal">
-            Payment is encrypted. By continuing you agree to the{' '}
-            <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>
+            {summary.legalPrefix} <a href="#terms">Terms</a> and{' '}
+            <a href="#privacy">Privacy Policy</a>
           </p>
         </aside>
       </div>
