@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { asset } from './assets'
 import { buildSummary, type CheckoutSelection } from './plan'
 import './Checkout.css'
@@ -72,6 +80,8 @@ export default function Checkout({
   const [unlockedBilling, setUnlockedBilling] = useState(false)
   const [unlockedExtendedAddress, setUnlockedExtendedAddress] = useState(false)
   const [unlockedBusinessToggle, setUnlockedBusinessToggle] = useState(false)
+  const addressLine1Ref = useRef<HTMLDivElement>(null)
+  const didScrollToAddressRef = useRef(false)
 
   useEffect(() => {
     if (isCardComplete(cardNumber, expiration, cvc)) {
@@ -110,6 +120,21 @@ export default function Checkout({
   const showExtendedAddress = paymentMethod === 'card' && unlockedExtendedAddress
   const showBusinessToggle = paymentMethod === 'card' && unlockedBusinessToggle
   const showBusinessFields = showBusinessToggle && isBusiness
+
+  // Gentle scroll when Address line 1 appears (extended address unlocks)
+  useEffect(() => {
+    if (!showExtendedAddress || didScrollToAddressRef.current) return
+    didScrollToAddressRef.current = true
+
+    const timer = window.setTimeout(() => {
+      addressLine1Ref.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 80)
+
+    return () => window.clearTimeout(timer)
+  }, [showExtendedAddress])
 
   const summary = useMemo(() => buildSummary(selection), [selection])
   const vatBase = summary.isTrial ? summary.dueToday : summary.totalAfter
@@ -330,14 +355,16 @@ export default function Checkout({
                 </span>
               </Field>
 
-              <Field label={addressLabel}>
-                <input
-                  className="field__input"
-                  autoComplete="address-line1"
-                  value={address1}
-                  onChange={(e) => setAddress1(e.target.value)}
-                />
-              </Field>
+              <div ref={addressLine1Ref}>
+                <Field label={addressLabel}>
+                  <input
+                    className="field__input"
+                    autoComplete="address-line1"
+                    value={address1}
+                    onChange={(e) => setAddress1(e.target.value)}
+                  />
+                </Field>
+              </div>
 
               {showExtendedAddress ? (
                 <div className="reveal">
