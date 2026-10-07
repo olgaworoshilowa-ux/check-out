@@ -12,9 +12,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 40px;
-  background: color-mix(in srgb, var(--bg-beta) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
 }
 
 .btn-back,
