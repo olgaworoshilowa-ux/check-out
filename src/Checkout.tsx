@@ -52,6 +52,24 @@ function isCardComplete(cardNumber: string, expiration: string, cvc: string) {
   )
 }
 
+/** Slow ease-out scroll — gentler than native scrollIntoView('smooth') */
+function softScrollBy(deltaY: number, duration = 700) {
+  if (Math.abs(deltaY) < 8) return
+
+  const startY = window.scrollY
+  const targetY = startY + deltaY
+  const startTime = performance.now()
+
+  function frame(now: number) {
+    const t = Math.min(1, (now - startTime) / duration)
+    const eased = 1 - (1 - t) ** 3
+    window.scrollTo(0, startY + (targetY - startY) * eased)
+    if (t < 1) window.requestAnimationFrame(frame)
+  }
+
+  window.requestAnimationFrame(frame)
+}
+
 export default function Checkout({
   onBack,
   selection,
@@ -121,17 +139,22 @@ export default function Checkout({
   const showBusinessToggle = paymentMethod === 'card' && unlockedBusinessToggle
   const showBusinessFields = showBusinessToggle && isBusiness
 
-  // Gentle scroll when Address line 1 appears (extended address unlocks)
+  // Soft nudge when Address line 1 / extra fields appear — only if needed
   useEffect(() => {
     if (!showExtendedAddress || didScrollToAddressRef.current) return
     didScrollToAddressRef.current = true
 
     const timer = window.setTimeout(() => {
-      addressLine1Ref.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    }, 80)
+      const el = addressLine1Ref.current
+      if (!el) return
+
+      const rect = el.getBoundingClientRect()
+      const viewport = window.innerHeight
+      // Keep field a bit above the bottom; don't jump to center
+      const comfortableBottom = viewport * 0.62
+      const delta = rect.top - comfortableBottom
+      if (delta > 0) softScrollBy(delta, 750)
+    }, 120)
 
     return () => window.clearTimeout(timer)
   }, [showExtendedAddress])
