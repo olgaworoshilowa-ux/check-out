@@ -11,6 +11,12 @@ function formatMoney(value: number) {
   return `$${value.toFixed(2)}`
 }
 
+/** Figma shows whole dollars without cents when .00 (e.g. –$180) */
+function formatMoneyCompact(value: number) {
+  if (Number.isInteger(value)) return `$${value}`
+  return formatMoney(value)
+}
+
 function digitsOnly(value: string) {
   return value.replace(/\D/g, '')
 }
@@ -182,7 +188,7 @@ export default function Checkout({
           </div>
 
           {paymentMethod === 'card' ? (
-            <>
+            <div className="card-group">
               <Field label="Card number">
                 <input
                   className="field__input"
@@ -207,8 +213,9 @@ export default function Checkout({
                 </div>
               </Field>
 
-              <div className="field-row">
-                <Field label="Expiration">
+              <div className="card-group__row">
+                <label className="card-group__cell">
+                  <span className="visually-hidden">Expiration</span>
                   <input
                     className="field__input"
                     inputMode="numeric"
@@ -217,20 +224,21 @@ export default function Checkout({
                     value={expiration}
                     onChange={(e) => setExpiration(formatExpiry(e.target.value))}
                   />
-                </Field>
-                <Field label="CVC">
+                </label>
+                <label className="card-group__cell">
+                  <span className="visually-hidden">Security code</span>
                   <input
                     className="field__input"
                     inputMode="numeric"
                     autoComplete="cc-csc"
-                    placeholder="•••"
+                    placeholder="Security code"
                     maxLength={4}
                     value={cvc}
                     onChange={(e) => setCvc(digitsOnly(e.target.value).slice(0, 4))}
                   />
-                </Field>
+                </label>
               </div>
-            </>
+            </div>
           ) : paymentMethod === 'paypal' ? (
             <div className="redirect-card reveal">
               <p className="redirect-card__title">PayPal selected.</p>
@@ -449,7 +457,7 @@ export default function Checkout({
                         <span className={`badge${isPro ? ' badge--dark' : ''}`}>33% OFF</span>
                       ) : null}
                     </span>
-                    <span>–{formatMoney(summary.discount)}</span>
+                    <span>–{formatMoneyCompact(summary.discount)}</span>
                   </div>
                 ) : null}
 
