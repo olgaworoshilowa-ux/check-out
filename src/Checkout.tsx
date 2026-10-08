@@ -20,7 +20,7 @@ import './Checkout.css'
 type PaymentMethod = 'card' | 'apple' | 'paypal'
 
 const VAT_RATES: Record<string, number> = {
-  Georgia: 0,
+  Georgia: 0.18,
   Germany: 0.19,
   Lithuania: 0.21,
 }
@@ -174,8 +174,11 @@ export default function Checkout({
     country === 'Germany' &&
     businessName.trim().length > 0 &&
     taxId.trim().length > 0
+  // Georgia: 0% VAT only when buying as a business
+  const isGeorgianBusiness = isBusiness && country === 'Georgia'
   const showTaxRow = true
-  const vatRate = isGermanBusiness ? 0 : getVatRate(country)
+  const vatRate =
+    isGermanBusiness || isGeorgianBusiness ? 0 : getVatRate(country)
   const vat = showTaxRow ? Number((vatBase * vatRate).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
   const isPro = summary.tone === 'pro'
@@ -217,19 +220,23 @@ export default function Checkout({
     }
   }, [])
 
-  // Recalculate when German B2B reverse-charge eligibility changes
-  const germanBusinessKey = isGermanBusiness ? 'de-b2b' : 'consumer'
-  const prevGermanKeyRef = useRef(germanBusinessKey)
+  // Recalculate when B2B zero-VAT eligibility changes
+  const zeroVatBusinessKey = isGermanBusiness
+    ? 'de-b2b'
+    : isGeorgianBusiness
+      ? 'ge-b2b'
+      : 'consumer'
+  const prevZeroVatKeyRef = useRef(zeroVatBusinessKey)
   useEffect(() => {
     if (!showBilling) {
-      prevGermanKeyRef.current = germanBusinessKey
+      prevZeroVatKeyRef.current = zeroVatBusinessKey
       return
     }
-    if (prevGermanKeyRef.current !== germanBusinessKey) {
-      prevGermanKeyRef.current = germanBusinessKey
+    if (prevZeroVatKeyRef.current !== zeroVatBusinessKey) {
+      prevZeroVatKeyRef.current = zeroVatBusinessKey
       startTaxCalculation()
     }
-  }, [showBilling, germanBusinessKey])
+  }, [showBilling, zeroVatBusinessKey])
 
   const addressLabel = useMemo(
     () => (showExtendedAddress ? 'Address line 1' : 'Address'),
