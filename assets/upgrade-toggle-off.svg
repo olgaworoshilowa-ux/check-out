@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="44" height="30" viewBox="0 0 44 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Toggle Switch">
+<rect id="bg" x="4" y="2" width="40" height="22" rx="11" fill="#919191"/>
+<g id="Knob" filter="url(#filter0_d_0_539)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15 22C19.9706 22 24 17.9706 24 13C24 8.02944 19.9706 4 15 4C10.0294 4 6 8.02944 6 13C6 17.9706 10.0294 22 15 22Z" fill="white"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_539" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="2"/>
+<feGaussianBlur stdDeviation="3"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_539"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_539" result="shape"/>
+</filter>
+</defs>
+</svg>
