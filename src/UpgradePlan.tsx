@@ -138,7 +138,7 @@ export default function UpgradePlan({ onContinue, onClose }: UpgradePlanProps) {
             onClick={() => setBilling('annual')}
           >
             Annual
-            <span className="billing-toggle__badge">Save 33%</span>
+            <span className="billing-toggle__badge">Save up to 75%</span>
           </button>
         </div>
       </div>
