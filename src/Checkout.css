@@ -256,7 +256,7 @@
 .field__control:focus-within {
   border-color: var(--primary-fill-beta);
   outline: none;
-  box-shadow: 0 0 0 1px var(--primary-fill-beta);
+  box-shadow: none;
 }
 
 .field--error .field__control {
