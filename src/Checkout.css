@@ -605,7 +605,6 @@
 
 .billing-switch__card--active {
   background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 0 0 1.5px var(--primary-fill-beta);
 }
 
 .billing-switch__card:hover {
