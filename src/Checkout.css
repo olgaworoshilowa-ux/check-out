@@ -586,21 +586,20 @@
   padding: 16px;
   border: none;
   border-radius: 15px;
-  background: rgba(255, 255, 255, 0.76);
-  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.55);
   cursor: pointer;
   text-align: left;
   box-sizing: border-box;
-  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .billing-switch__card--active {
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 0 0 1.5px var(--primary-fill-beta);
 }
 
 .billing-switch__card:hover {
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .billing-switch__check {
@@ -635,13 +634,15 @@
   display: inline-flex;
   align-items: center;
   padding: 2.5px 6px;
-  background: var(--primary-icon-gamma);
+  background: #5adb6d;
   border-radius: var(--radius-round);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--neutral-text-alpha);
+  color: #1c1c1c;
   white-space: nowrap;
+  opacity: 1;
+  isolation: isolate;
 }
 
 .billing-switch__name {
