@@ -174,8 +174,9 @@ export default function Checkout({
     country === 'Germany' &&
     businessName.trim().length > 0 &&
     taxId.trim().length > 0
-  // Georgia: 0% VAT only when buying as a business
-  const isGeorgianBusiness = isBusiness && country === 'Georgia'
+  // Georgia: 0% VAT only when business Tax ID is entered
+  const isGeorgianBusiness =
+    isBusiness && country === 'Georgia' && taxId.trim().length > 0
   const showTaxRow = true
   const vatRate =
     isGermanBusiness || isGeorgianBusiness ? 0 : getVatRate(country)
