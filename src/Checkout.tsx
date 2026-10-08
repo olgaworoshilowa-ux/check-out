@@ -799,7 +799,7 @@ export default function Checkout({
                     <span
                       className={`billing-switch__badge${isPro ? ' billing-switch__badge--dark' : ''}`}
                     >
-                      75% OFF
+                      {isPro ? '33% OFF' : '75% OFF'}
                     </span>
                     <span className="billing-switch__name">Annual</span>
                     <span className="billing-switch__price">
@@ -819,7 +819,9 @@ export default function Checkout({
                     <span className="summary__row-left">
                       Annual discount
                       {summary.showAnnualBadge || (allowBillingSwitch && billing === 'annual') ? (
-                        <span className={`badge${isPro ? ' badge--dark' : ''}`}>75% OFF</span>
+                        <span className={`badge${isPro ? ' badge--dark' : ''}`}>
+                          {isPro ? '33% OFF' : '75% OFF'}
+                        </span>
                       ) : null}
                     </span>
                     <span>–{formatMoneyCompact(summary.discount)}</span>
