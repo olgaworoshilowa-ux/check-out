@@ -83,7 +83,7 @@ export function buildSummary(selection: CheckoutSelection): SummaryModel {
       discount: null,
       totalAfter: PREMIUM_ANNUAL.monthly,
       dueToday: PREMIUM_ANNUAL.monthly,
-      note: 'Billed monthly',
+      note: 'Monthly subscription',
       cancelNote: null,
       legalPrefix: 'Payment is encrypted. By continuing you agree to the',
       showAnnualBadge: false,
@@ -152,7 +152,7 @@ export function buildSummary(selection: CheckoutSelection): SummaryModel {
     discount: null,
     totalAfter: pricing.monthly,
     dueToday: pricing.monthly,
-    note: 'Billed monthly',
+    note: 'Monthly subscription',
     cancelNote: null,
     legalPrefix: 'Payment is encrypted. By continuing you agree to the',
     showAnnualBadge: false,
@@ -160,5 +160,20 @@ export function buildSummary(selection: CheckoutSelection): SummaryModel {
     isTrial: false,
     tone: 'pro',
     payLabel: `Pay $${pricing.monthly.toFixed(2)}`,
+  }
+}
+
+/** Prices shown on Monthly → Annual switcher cards in checkout */
+export function getBillingSwitcherPrices(selection: CheckoutSelection) {
+  if (selection.plan === 'premium') {
+    return {
+      monthlyPerMonth: PREMIUM_ANNUAL.monthly,
+      annualPerMonth: PREMIUM_ANNUAL.annualMonthly,
+    }
+  }
+  const pricing = PRO_PRICING[selection.credits]
+  return {
+    monthlyPerMonth: pricing.monthly,
+    annualPerMonth: pricing.annualMonthly,
   }
 }

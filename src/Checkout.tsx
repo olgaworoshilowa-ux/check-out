@@ -8,7 +8,12 @@ import {
   type ReactNode,
 } from 'react'
 import { asset } from './assets'
-import { buildSummary, type CheckoutSelection } from './plan'
+import {
+  buildSummary,
+  getBillingSwitcherPrices,
+  type BillingPeriod,
+  type CheckoutSelection,
+} from './plan'
 import './Checkout.css'
 
 type PaymentMethod = 'card' | 'apple' | 'paypal'
@@ -159,7 +164,19 @@ export default function Checkout({
     return () => window.clearTimeout(timer)
   }, [showExtendedAddress])
 
-  const summary = useMemo(() => buildSummary(selection), [selection])
+  // Show Monthly/Annual cards only if user arrived from Monthly on Upgrade
+  const [allowBillingSwitch] = useState(() => selection.billing === 'monthly')
+  const [billing, setBilling] = useState<BillingPeriod>(selection.billing)
+
+  const activeSelection = useMemo(
+    () => ({ ...selection, billing }),
+    [selection, billing],
+  )
+  const summary = useMemo(() => buildSummary(activeSelection), [activeSelection])
+  const switcherPrices = useMemo(
+    () => getBillingSwitcherPrices(activeSelection),
+    [activeSelection],
+  )
   const vatBase = summary.isTrial ? summary.dueToday : summary.totalAfter
   const vat = showBusinessFields ? Number((vatBase * VAT_RATE).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
@@ -499,16 +516,63 @@ export default function Checkout({
               </div>
               <p className="summary__subtitle">{summary.subtitle}</p>
 
+              {allowBillingSwitch ? (
+                <div className="billing-switch" role="radiogroup" aria-label="Billing period">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={billing === 'monthly'}
+                    className={`billing-switch__card${billing === 'monthly' ? ' billing-switch__card--active' : ''}`}
+                    onClick={() => setBilling('monthly')}
+                  >
+                    <span
+                      className={`billing-switch__check${billing === 'monthly' ? ' billing-switch__check--on' : ''}`}
+                      aria-hidden="true"
+                    >
+                      {billing === 'monthly' ? (
+                        <img src={asset('check-small.svg')} alt="" />
+                      ) : null}
+                    </span>
+                    <span className="billing-switch__name">Monthly</span>
+                    <span className="billing-switch__price">
+                      {formatMoney(switcherPrices.monthlyPerMonth)}/mo
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={billing === 'annual'}
+                    className={`billing-switch__card${billing === 'annual' ? ' billing-switch__card--active' : ''}`}
+                    onClick={() => setBilling('annual')}
+                  >
+                    <span
+                      className={`billing-switch__check${billing === 'annual' ? ' billing-switch__check--on' : ''}`}
+                      aria-hidden="true"
+                    >
+                      {billing === 'annual' ? (
+                        <img src={asset('check-small.svg')} alt="" />
+                      ) : null}
+                    </span>
+                    <span className="billing-switch__badge">33% OFF</span>
+                    <span className="billing-switch__name">Annual</span>
+                    <span className="billing-switch__price">
+                      {formatMoney(switcherPrices.annualPerMonth)}/mo
+                    </span>
+                  </button>
+                </div>
+              ) : null}
+
               <div className="summary__rows">
                 <div className="summary__row">
                   <span>Subtotal</span>
                   <span>{formatMoney(summary.subtotal)}</span>
                 </div>
-                {summary.discount != null ? (
+                {summary.discount != null && !(allowBillingSwitch && billing === 'monthly') ? (
                   <div className="summary__row">
                     <span className="summary__row-left">
                       Annual discount
-                      {summary.showAnnualBadge ? (
+                      {summary.showAnnualBadge || (allowBillingSwitch && billing === 'annual') ? (
                         <span className={`badge${isPro ? ' badge--dark' : ''}`}>33% OFF</span>
                       ) : null}
                     </span>
