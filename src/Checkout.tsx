@@ -90,9 +90,19 @@ export default function Checkout({
     expiration?: string
     cvc?: string
   }>({})
+  const [billingErrors, setBillingErrors] = useState<{
+    fullName?: string
+    address1?: string
+    city?: string
+    postalCode?: string
+  }>({})
   const cardNumberFieldRef = useRef<HTMLDivElement>(null)
   const expirationFieldRef = useRef<HTMLDivElement>(null)
   const cvcFieldRef = useRef<HTMLDivElement>(null)
+  const fullNameFieldRef = useRef<HTMLDivElement>(null)
+  const address1FieldRef = useRef<HTMLDivElement>(null)
+  const cityFieldRef = useRef<HTMLDivElement>(null)
+  const postalCodeFieldRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isCardComplete(cardNumber, expiration, cvc)) {
@@ -183,26 +193,78 @@ export default function Checkout({
     return next
   }
 
+  function validateBillingFields() {
+    const next: {
+      fullName?: string
+      address1?: string
+      city?: string
+      postalCode?: string
+    } = {}
+
+    if (!showBilling) {
+      setBillingErrors({})
+      return next
+    }
+
+    if (!fullName.trim()) {
+      next.fullName = 'Full name is required'
+    }
+
+    if (!address1.trim()) {
+      next.address1 = 'Address is required'
+    }
+
+    if (showExtendedAddress) {
+      if (!city.trim()) {
+        next.city = 'City is required'
+      }
+      if (!postalCode.trim()) {
+        next.postalCode = 'Postal code is required'
+      }
+    }
+
+    setBillingErrors(next)
+    return next
+  }
+
   function handlePay() {
     if (paymentMethod !== 'card') {
       return
     }
 
-    const next = validateCardFields()
-    const hasErrors = Boolean(next.cardNumber || next.expiration || next.cvc)
+    const cardNext = validateCardFields()
+    const billingNext = validateBillingFields()
+    const hasErrors = Boolean(
+      cardNext.cardNumber ||
+        cardNext.expiration ||
+        cardNext.cvc ||
+        billingNext.fullName ||
+        billingNext.address1 ||
+        billingNext.city ||
+        billingNext.postalCode,
+    )
+
     if (!hasErrors) {
       // Prototype — no real charge
       return
     }
 
     // Scroll to first invalid field so errors are visible
-    const target: HTMLDivElement | null = next.cardNumber
+    const target: HTMLDivElement | null = cardNext.cardNumber
       ? cardNumberFieldRef.current
-      : next.expiration
+      : cardNext.expiration
         ? expirationFieldRef.current
-        : next.cvc
+        : cardNext.cvc
           ? cvcFieldRef.current
-          : null
+          : billingNext.fullName
+            ? fullNameFieldRef.current
+            : billingNext.address1
+              ? address1FieldRef.current
+              : billingNext.city
+                ? cityFieldRef.current
+                : billingNext.postalCode
+                  ? postalCodeFieldRef.current
+                  : null
 
     window.setTimeout(() => {
       target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -430,15 +492,27 @@ export default function Checkout({
             <div className="reveal">
               <h2 className="checkout__section-title">Billing address</h2>
 
-              <Field label="Full name" filled={fullName.trim().length > 0}>
-                <input
-                  className="field__input"
-                  autoComplete="name"
-                  placeholder=" "
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </Field>
+              <div ref={fullNameFieldRef}>
+                <Field
+                  label="Full name"
+                  filled={fullName.trim().length > 0}
+                  error={billingErrors.fullName}
+                >
+                  <input
+                    className="field__input"
+                    autoComplete="name"
+                    placeholder=" "
+                    value={fullName}
+                    aria-invalid={Boolean(billingErrors.fullName)}
+                    onChange={(e) => {
+                      setFullName(e.target.value)
+                      if (billingErrors.fullName) {
+                        setBillingErrors((prev) => ({ ...prev, fullName: undefined }))
+                      }
+                    }}
+                  />
+                </Field>
+              </div>
 
               <Field label="Country" filled>
                 <select
@@ -457,15 +531,27 @@ export default function Checkout({
                 </span>
               </Field>
 
-              <Field label={addressLabel} filled={address1.trim().length > 0}>
-                <input
-                  className="field__input"
-                  autoComplete="address-line1"
-                  placeholder=" "
-                  value={address1}
-                  onChange={(e) => setAddress1(e.target.value)}
-                />
-              </Field>
+              <div ref={address1FieldRef}>
+                <Field
+                  label={addressLabel}
+                  filled={address1.trim().length > 0}
+                  error={billingErrors.address1}
+                >
+                  <input
+                    className="field__input"
+                    autoComplete="address-line1"
+                    placeholder=" "
+                    value={address1}
+                    aria-invalid={Boolean(billingErrors.address1)}
+                    onChange={(e) => {
+                      setAddress1(e.target.value)
+                      if (billingErrors.address1) {
+                        setBillingErrors((prev) => ({ ...prev, address1: undefined }))
+                      }
+                    }}
+                  />
+                </Field>
+              </div>
 
               {showExtendedAddress ? (
                 <div className="reveal">
@@ -479,25 +565,49 @@ export default function Checkout({
                     />
                   </Field>
 
-                  <Field label="City" filled={city.trim().length > 0}>
-                    <input
-                      className="field__input"
-                      autoComplete="address-level2"
-                      placeholder=" "
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                    />
-                  </Field>
+                  <div ref={cityFieldRef}>
+                    <Field
+                      label="City"
+                      filled={city.trim().length > 0}
+                      error={billingErrors.city}
+                    >
+                      <input
+                        className="field__input"
+                        autoComplete="address-level2"
+                        placeholder=" "
+                        value={city}
+                        aria-invalid={Boolean(billingErrors.city)}
+                        onChange={(e) => {
+                          setCity(e.target.value)
+                          if (billingErrors.city) {
+                            setBillingErrors((prev) => ({ ...prev, city: undefined }))
+                          }
+                        }}
+                      />
+                    </Field>
+                  </div>
 
-                  <Field label="Postal code" filled={postalCode.trim().length > 0}>
-                    <input
-                      className="field__input"
-                      autoComplete="postal-code"
-                      placeholder=" "
-                      value={postalCode}
-                      onChange={(e) => setPostalCode(e.target.value)}
-                    />
-                  </Field>
+                  <div ref={postalCodeFieldRef}>
+                    <Field
+                      label="Postal code"
+                      filled={postalCode.trim().length > 0}
+                      error={billingErrors.postalCode}
+                    >
+                      <input
+                        className="field__input"
+                        autoComplete="postal-code"
+                        placeholder=" "
+                        value={postalCode}
+                        aria-invalid={Boolean(billingErrors.postalCode)}
+                        onChange={(e) => {
+                          setPostalCode(e.target.value)
+                          if (billingErrors.postalCode) {
+                            setBillingErrors((prev) => ({ ...prev, postalCode: undefined }))
+                          }
+                        }}
+                      />
+                    </Field>
+                  </div>
                 </div>
               ) : null}
             </div>
