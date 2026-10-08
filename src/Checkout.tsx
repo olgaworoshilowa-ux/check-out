@@ -1,7 +1,6 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -57,24 +56,6 @@ function isCardComplete(cardNumber: string, expiration: string, cvc: string) {
   )
 }
 
-/** Slow ease-out scroll — gentler than native scrollIntoView('smooth') */
-function softScrollBy(deltaY: number, duration = 700) {
-  if (Math.abs(deltaY) < 8) return
-
-  const startY = window.scrollY
-  const targetY = startY + deltaY
-  const startTime = performance.now()
-
-  function frame(now: number) {
-    const t = Math.min(1, (now - startTime) / duration)
-    const eased = 1 - (1 - t) ** 3
-    window.scrollTo(0, startY + (targetY - startY) * eased)
-    if (t < 1) window.requestAnimationFrame(frame)
-  }
-
-  window.requestAnimationFrame(frame)
-}
-
 export default function Checkout({
   onBack,
   selection,
@@ -108,10 +89,6 @@ export default function Checkout({
     expiration?: string
     cvc?: string
   }>({})
-  const addressLine1Ref = useRef<HTMLDivElement>(null)
-  const cardNumberRef = useRef<HTMLDivElement>(null)
-  const didScrollToAddressRef = useRef(false)
-
   useEffect(() => {
     if (isCardComplete(cardNumber, expiration, cvc)) {
       setUnlockedEmail(true)
@@ -149,26 +126,6 @@ export default function Checkout({
   const showExtendedAddress = paymentMethod === 'card' && unlockedExtendedAddress
   const showBusinessToggle = paymentMethod === 'card' && unlockedBusinessToggle
   const showBusinessFields = showBusinessToggle && isBusiness
-
-  // Soft nudge when Address line 1 / extra fields appear — only if needed
-  useEffect(() => {
-    if (!showExtendedAddress || didScrollToAddressRef.current) return
-    didScrollToAddressRef.current = true
-
-    const timer = window.setTimeout(() => {
-      const el = addressLine1Ref.current
-      if (!el) return
-
-      const rect = el.getBoundingClientRect()
-      const viewport = window.innerHeight
-      // Keep field a bit above the bottom; don't jump to center
-      const comfortableBottom = viewport * 0.62
-      const delta = rect.top - comfortableBottom
-      if (delta > 0) softScrollBy(delta, 750)
-    }, 120)
-
-    return () => window.clearTimeout(timer)
-  }, [showExtendedAddress])
 
   // Show Monthly/Annual cards only if user arrived from Monthly on Upgrade
   const [allowBillingSwitch] = useState(() => selection.billing === 'monthly')
@@ -223,9 +180,6 @@ export default function Checkout({
 
   function handlePay() {
     if (paymentMethod === 'card' && !validateCardFields()) {
-      window.requestAnimationFrame(() => {
-        cardNumberRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      })
       return
     }
     // Prototype — no real charge
@@ -305,39 +259,37 @@ export default function Checkout({
 
           {paymentMethod === 'card' ? (
             <>
-              <div ref={cardNumberRef}>
-                <Field
-                  label="Card number"
-                  filled={cardNumber.length > 0}
-                  error={cardErrors.cardNumber}
-                >
-                  <input
-                    className="field__input"
-                    inputMode="numeric"
-                    autoComplete="cc-number"
-                    placeholder="1424 1424 1424 1424"
-                    value={cardNumber}
-                    aria-invalid={Boolean(cardErrors.cardNumber)}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setCardNumber(formatCardNumber(e.target.value))
-                      if (cardErrors.cardNumber) {
-                        setCardErrors((prev) => ({ ...prev, cardNumber: undefined }))
-                      }
-                    }}
-                  />
-                  <div className="field__brands" aria-hidden="true">
-                    <span className="brand-badge">
-                      <img src={asset('mastercard.svg')} alt="" />
-                    </span>
-                    <span className="brand-badge">
-                      <img src={asset('visa.svg')} alt="" />
-                    </span>
-                    <span className="brand-badge brand-badge--amex">
-                      <img src={asset('amex.svg')} alt="" />
-                    </span>
-                  </div>
-                </Field>
-              </div>
+              <Field
+                label="Card number"
+                filled={cardNumber.length > 0}
+                error={cardErrors.cardNumber}
+              >
+                <input
+                  className="field__input"
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  placeholder="1424 1424 1424 1424"
+                  value={cardNumber}
+                  aria-invalid={Boolean(cardErrors.cardNumber)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setCardNumber(formatCardNumber(e.target.value))
+                    if (cardErrors.cardNumber) {
+                      setCardErrors((prev) => ({ ...prev, cardNumber: undefined }))
+                    }
+                  }}
+                />
+                <div className="field__brands" aria-hidden="true">
+                  <span className="brand-badge">
+                    <img src={asset('mastercard.svg')} alt="" />
+                  </span>
+                  <span className="brand-badge">
+                    <img src={asset('visa.svg')} alt="" />
+                  </span>
+                  <span className="brand-badge brand-badge--amex">
+                    <img src={asset('amex.svg')} alt="" />
+                  </span>
+                </div>
+              </Field>
 
               <div className="field-row">
                 <Field
@@ -475,17 +427,15 @@ export default function Checkout({
                 </span>
               </Field>
 
-              <div ref={addressLine1Ref}>
-                <Field label={addressLabel} filled={address1.trim().length > 0}>
-                  <input
-                    className="field__input"
-                    autoComplete="address-line1"
-                    placeholder=" "
-                    value={address1}
-                    onChange={(e) => setAddress1(e.target.value)}
-                  />
-                </Field>
-              </div>
+              <Field label={addressLabel} filled={address1.trim().length > 0}>
+                <input
+                  className="field__input"
+                  autoComplete="address-line1"
+                  placeholder=" "
+                  value={address1}
+                  onChange={(e) => setAddress1(e.target.value)}
+                />
+              </Field>
 
               {showExtendedAddress ? (
                 <div className="reveal">
