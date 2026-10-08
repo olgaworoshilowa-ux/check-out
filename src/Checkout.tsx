@@ -615,7 +615,11 @@ export default function Checkout({
                         <img src={asset('check-small.svg')} alt="" />
                       ) : null}
                     </span>
-                    <span className="billing-switch__badge">33% OFF</span>
+                    <span
+                      className={`billing-switch__badge${isPro ? ' billing-switch__badge--dark' : ''}`}
+                    >
+                      33% OFF
+                    </span>
                     <span className="billing-switch__name">Annual</span>
                     <span className="billing-switch__price">
                       {formatMoney(switcherPrices.annualPerMonth)}/mo

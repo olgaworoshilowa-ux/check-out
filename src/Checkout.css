@@ -643,15 +643,21 @@
   display: inline-flex;
   align-items: center;
   padding: 2.5px 6px;
-  background: #1c1c1c;
+  /* Premium default — vibrant green */
+  background: #5adb6d;
   border-radius: var(--radius-round);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  color: #fff;
+  color: #1c1c1c;
   white-space: nowrap;
   opacity: 1;
   isolation: isolate;
+}
+
+.billing-switch__badge--dark {
+  background: #1c1c1c;
+  color: #fff;
 }
 
 .billing-switch__name {
