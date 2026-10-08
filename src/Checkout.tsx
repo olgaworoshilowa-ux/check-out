@@ -22,7 +22,6 @@ type PaymentMethod = 'card' | 'apple' | 'paypal'
 const VAT_RATES: Record<string, number> = {
   Georgia: 0.18,
   Germany: 0.19,
-  France: 0.19,
   Lithuania: 0.21,
   'United Kingdom': 0.2,
   'United States': 0,
@@ -177,8 +176,7 @@ export default function Checkout({
     country === 'Germany' &&
     businessName.trim().length > 0 &&
     taxId.trim().length > 0
-  // Location tax in summary from the start; France: never show (even with business)
-  const showTaxRow = country !== 'France'
+  const showTaxRow = true
   const vatRate = isGermanBusiness ? 0 : getVatRate(country)
   const vat = showTaxRow ? Number((vatBase * vatRate).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
@@ -612,7 +610,6 @@ export default function Checkout({
                   <option>United States</option>
                   <option>United Kingdom</option>
                   <option>Germany</option>
-                  <option>France</option>
                   <option>Lithuania</option>
                 </select>
                 <span className="field__chevron" aria-hidden="true">
