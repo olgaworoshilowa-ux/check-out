@@ -93,7 +93,7 @@
   justify-content: center;
   align-items: flex-start;
   /* Title/content a bit lower than Figma y=64 for breathing room under Back/Close */
-  padding: 96px 40px 80px;
+  padding: 128px 40px 80px;
   max-width: 856px;
   margin: 0 auto;
 }
