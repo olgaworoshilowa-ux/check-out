@@ -693,13 +693,6 @@ export default function Checkout({
             </div>
           </div>
 
-          {paymentMethod === 'card' &&
-          (cardErrors.cardNumber || cardErrors.expiration || cardErrors.cvc) ? (
-            <p className="pay-error" role="alert">
-              Check card number, expiration, and security code
-            </p>
-          ) : null}
-
           {paymentMethod === 'apple' ? (
             <button
               type="button"
