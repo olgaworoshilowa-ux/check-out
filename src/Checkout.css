@@ -719,8 +719,8 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 0;
+  border-top: none;
   font-size: 18px;
   font-weight: 600;
   line-height: 28px;
