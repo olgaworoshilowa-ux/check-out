@@ -644,12 +644,12 @@
   display: inline-flex;
   align-items: center;
   padding: 2.5px 6px;
-  background: #5adb6d;
+  background: #1c1c1c;
   border-radius: var(--radius-round);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  color: #1c1c1c;
+  color: #fff;
   white-space: nowrap;
   opacity: 1;
   isolation: isolate;
