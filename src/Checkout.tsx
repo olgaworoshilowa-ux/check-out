@@ -196,10 +196,13 @@ export default function Checkout({
     }
 
     // Scroll to first invalid field so errors are visible
-    const target =
-      (next.cardNumber && cardNumberFieldRef.current) ||
-      (next.expiration && expirationFieldRef.current) ||
-      (next.cvc && cvcFieldRef.current)
+    const target: HTMLDivElement | null = next.cardNumber
+      ? cardNumberFieldRef.current
+      : next.expiration
+        ? expirationFieldRef.current
+        : next.cvc
+          ? cvcFieldRef.current
+          : null
 
     window.setTimeout(() => {
       target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
