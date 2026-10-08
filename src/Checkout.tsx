@@ -799,7 +799,7 @@ export default function Checkout({
                     <span
                       className={`billing-switch__badge${isPro ? ' billing-switch__badge--dark' : ''}`}
                     >
-                      33% OFF
+                      75% OFF
                     </span>
                     <span className="billing-switch__name">Annual</span>
                     <span className="billing-switch__price">
