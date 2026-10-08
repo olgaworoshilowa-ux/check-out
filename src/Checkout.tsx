@@ -103,7 +103,13 @@ export default function Checkout({
   const [unlockedBilling, setUnlockedBilling] = useState(false)
   const [unlockedExtendedAddress, setUnlockedExtendedAddress] = useState(false)
   const [unlockedBusinessToggle, setUnlockedBusinessToggle] = useState(false)
+  const [cardErrors, setCardErrors] = useState<{
+    cardNumber?: string
+    expiration?: string
+    cvc?: string
+  }>({})
   const addressLine1Ref = useRef<HTMLDivElement>(null)
+  const cardNumberRef = useRef<HTMLDivElement>(null)
   const didScrollToAddressRef = useRef(false)
 
   useEffect(() => {
@@ -187,8 +193,47 @@ export default function Checkout({
     [showExtendedAddress],
   )
 
+  function validateCardFields() {
+    const next: { cardNumber?: string; expiration?: string; cvc?: string } = {}
+    const numberDigits = digitsOnly(cardNumber)
+    const expiryDigits = digitsOnly(expiration)
+    const cvcDigits = digitsOnly(cvc)
+
+    if (!numberDigits) {
+      next.cardNumber = 'Card number is required'
+    } else if (numberDigits.length < 16) {
+      next.cardNumber = 'Your card number is incomplete'
+    }
+
+    if (!expiryDigits) {
+      next.expiration = 'Expiration is required'
+    } else if (expiryDigits.length < 4) {
+      next.expiration = "Your card's expiration date is incomplete"
+    }
+
+    if (!cvcDigits) {
+      next.cvc = 'Security code is required'
+    } else if (cvcDigits.length < 3) {
+      next.cvc = "Your card's security code is incomplete"
+    }
+
+    setCardErrors(next)
+    return Object.keys(next).length === 0
+  }
+
+  function handlePay() {
+    if (paymentMethod === 'card' && !validateCardFields()) {
+      window.requestAnimationFrame(() => {
+        cardNumberRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+      return
+    }
+    // Prototype — no real charge
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
+    handlePay()
   }
 
   return (
@@ -230,7 +275,10 @@ export default function Checkout({
               role="radio"
               aria-checked={paymentMethod === 'apple'}
               className={`payment-method${paymentMethod === 'apple' ? ' payment-method--active' : ''}`}
-              onClick={() => setPaymentMethod('apple')}
+              onClick={() => {
+                setPaymentMethod('apple')
+                setCardErrors({})
+              }}
             >
               <span className="payment-method__icon payment-method__icon--wide">
                 <img src={asset('apple-pay.svg')} alt="" />
@@ -243,7 +291,10 @@ export default function Checkout({
               role="radio"
               aria-checked={paymentMethod === 'paypal'}
               className={`payment-method${paymentMethod === 'paypal' ? ' payment-method--active' : ''}`}
-              onClick={() => setPaymentMethod('paypal')}
+              onClick={() => {
+                setPaymentMethod('paypal')
+                setCardErrors({})
+              }}
             >
               <span className="payment-method__icon payment-method__icon--paypal">
                 <img src={asset('paypal.svg')} alt="" />
@@ -254,42 +305,66 @@ export default function Checkout({
 
           {paymentMethod === 'card' ? (
             <>
-              <Field label="Card number" filled={cardNumber.length > 0}>
-                <input
-                  className="field__input"
-                  inputMode="numeric"
-                  autoComplete="cc-number"
-                  placeholder="1424 1424 1424 1424"
-                  value={cardNumber}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setCardNumber(formatCardNumber(e.target.value))
-                  }
-                />
-                <div className="field__brands" aria-hidden="true">
-                  <span className="brand-badge">
-                    <img src={asset('mastercard.svg')} alt="" />
-                  </span>
-                  <span className="brand-badge">
-                    <img src={asset('visa.svg')} alt="" />
-                  </span>
-                  <span className="brand-badge brand-badge--amex">
-                    <img src={asset('amex.svg')} alt="" />
-                  </span>
-                </div>
-              </Field>
+              <div ref={cardNumberRef}>
+                <Field
+                  label="Card number"
+                  filled={cardNumber.length > 0}
+                  error={cardErrors.cardNumber}
+                >
+                  <input
+                    className="field__input"
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    placeholder="1424 1424 1424 1424"
+                    value={cardNumber}
+                    aria-invalid={Boolean(cardErrors.cardNumber)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      setCardNumber(formatCardNumber(e.target.value))
+                      if (cardErrors.cardNumber) {
+                        setCardErrors((prev) => ({ ...prev, cardNumber: undefined }))
+                      }
+                    }}
+                  />
+                  <div className="field__brands" aria-hidden="true">
+                    <span className="brand-badge">
+                      <img src={asset('mastercard.svg')} alt="" />
+                    </span>
+                    <span className="brand-badge">
+                      <img src={asset('visa.svg')} alt="" />
+                    </span>
+                    <span className="brand-badge brand-badge--amex">
+                      <img src={asset('amex.svg')} alt="" />
+                    </span>
+                  </div>
+                </Field>
+              </div>
 
               <div className="field-row">
-                <Field label="Expiration" filled={expiration.length > 0}>
+                <Field
+                  label="Expiration"
+                  filled={expiration.length > 0}
+                  error={cardErrors.expiration}
+                >
                   <input
                     className="field__input"
                     inputMode="numeric"
                     autoComplete="cc-exp"
                     placeholder="MM/YY"
                     value={expiration}
-                    onChange={(e) => setExpiration(formatExpiry(e.target.value))}
+                    aria-invalid={Boolean(cardErrors.expiration)}
+                    onChange={(e) => {
+                      setExpiration(formatExpiry(e.target.value))
+                      if (cardErrors.expiration) {
+                        setCardErrors((prev) => ({ ...prev, expiration: undefined }))
+                      }
+                    }}
                   />
                 </Field>
-                <Field label="Security code" filled={cvc.length > 0}>
+                <Field
+                  label="Security code"
+                  filled={cvc.length > 0}
+                  error={cardErrors.cvc}
+                >
                   <input
                     className="field__input"
                     inputMode="numeric"
@@ -297,7 +372,13 @@ export default function Checkout({
                     placeholder="CVC"
                     maxLength={4}
                     value={cvc}
-                    onChange={(e) => setCvc(digitsOnly(e.target.value).slice(0, 4))}
+                    aria-invalid={Boolean(cardErrors.cvc)}
+                    onChange={(e) => {
+                      setCvc(digitsOnly(e.target.value).slice(0, 4))
+                      if (cardErrors.cvc) {
+                        setCardErrors((prev) => ({ ...prev, cvc: undefined }))
+                      }
+                    }}
                   />
                 </Field>
               </div>
@@ -636,7 +717,7 @@ export default function Checkout({
             <button
               type="button"
               className="btn-apple-pay"
-              onClick={handleSubmit}
+              onClick={handlePay}
               aria-label={
                 summary.isTrial
                   ? 'Start trial for $0 with Apple Pay'
@@ -649,7 +730,7 @@ export default function Checkout({
             <button
               type="button"
               className={`btn-pay${isPro ? ' btn-pay--pro' : ''}`}
-              onClick={handleSubmit}
+              onClick={handlePay}
             >
               {paymentMethod === 'paypal'
                 ? summary.isTrial
@@ -674,19 +755,28 @@ export default function Checkout({
 function Field({
   label,
   filled,
+  error,
   children,
 }: {
   label: string
   /** Force floated label (selects / prefilled values) */
   filled?: boolean
+  error?: string
   children: ReactNode
 }) {
   return (
-    <label className={`field field--floating${filled ? ' field--filled' : ''}`}>
+    <label
+      className={`field field--floating${filled ? ' field--filled' : ''}${error ? ' field--error' : ''}`}
+    >
       <span className="field__control">
         {children}
         <span className="field__label">{label}</span>
       </span>
+      {error ? (
+        <span className="field__error" role="alert">
+          {error}
+        </span>
+      ) : null}
     </label>
   )
 }

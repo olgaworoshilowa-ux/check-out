@@ -259,6 +259,29 @@
   box-shadow: 0 0 0 1px var(--primary-fill-beta);
 }
 
+.field--error .field__control {
+  border-color: #df1b41;
+  box-shadow: 0 0 0 1px #df1b41;
+}
+
+.field--error .field__control:focus-within {
+  border-color: #df1b41;
+  box-shadow: 0 0 0 1px #df1b41;
+}
+
+.field--error .field__label {
+  color: #df1b41;
+}
+
+.field__error {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #df1b41;
+}
+
 .field__input {
   flex: 1;
   min-width: 0;
