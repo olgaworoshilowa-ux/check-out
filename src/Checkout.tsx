@@ -237,7 +237,7 @@ export default function Checkout({
 
           {paymentMethod === 'card' ? (
             <div className="card-group">
-              <Field label="Card number">
+              <Field label="Card number" filled={cardNumber.length > 0}>
                 <input
                   className="field__input"
                   inputMode="numeric"
@@ -262,8 +262,9 @@ export default function Checkout({
               </Field>
 
               <div className="card-group__row">
-                <label className="card-group__cell">
-                  <span className="visually-hidden">Expiration</span>
+                <label
+                  className={`card-group__cell field--floating${expiration ? ' field--filled' : ''}`}
+                >
                   <input
                     className="field__input"
                     inputMode="numeric"
@@ -272,18 +273,21 @@ export default function Checkout({
                     value={expiration}
                     onChange={(e) => setExpiration(formatExpiry(e.target.value))}
                   />
+                  <span className="field__label">Expiration</span>
                 </label>
-                <label className="card-group__cell">
-                  <span className="visually-hidden">Security code</span>
+                <label
+                  className={`card-group__cell field--floating${cvc ? ' field--filled' : ''}`}
+                >
                   <input
                     className="field__input"
                     inputMode="numeric"
                     autoComplete="cc-csc"
-                    placeholder="Security code"
+                    placeholder="CVC"
                     maxLength={4}
                     value={cvc}
                     onChange={(e) => setCvc(digitsOnly(e.target.value).slice(0, 4))}
                   />
+                  <span className="field__label">Security code</span>
                 </label>
               </div>
             </div>
@@ -335,7 +339,7 @@ export default function Checkout({
 
           {showEmail ? (
             <div className="reveal">
-              <Field label="Email">
+              <Field label="Email" filled={email.trim().length > 0}>
                 <input
                   className="field__input"
                   type="email"
@@ -352,16 +356,17 @@ export default function Checkout({
             <div className="reveal">
               <h2 className="checkout__section-title">Billing address</h2>
 
-              <Field label="Full name">
+              <Field label="Full name" filled={fullName.trim().length > 0}>
                 <input
                   className="field__input"
                   autoComplete="name"
+                  placeholder=" "
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                 />
               </Field>
 
-              <Field label="Country">
+              <Field label="Country" filled>
                 <select
                   className="field__input field__input--select"
                   value={country}
@@ -379,10 +384,11 @@ export default function Checkout({
               </Field>
 
               <div ref={addressLine1Ref}>
-                <Field label={addressLabel}>
+                <Field label={addressLabel} filled={address1.trim().length > 0}>
                   <input
                     className="field__input"
                     autoComplete="address-line1"
+                    placeholder=" "
                     value={address1}
                     onChange={(e) => setAddress1(e.target.value)}
                   />
@@ -391,28 +397,31 @@ export default function Checkout({
 
               {showExtendedAddress ? (
                 <div className="reveal">
-                  <Field label="Address line 2">
+                  <Field label="Address line 2" filled={address2.trim().length > 0}>
                     <input
                       className="field__input"
                       autoComplete="address-line2"
+                      placeholder=" "
                       value={address2}
                       onChange={(e) => setAddress2(e.target.value)}
                     />
                   </Field>
 
-                  <Field label="City">
+                  <Field label="City" filled={city.trim().length > 0}>
                     <input
                       className="field__input"
                       autoComplete="address-level2"
+                      placeholder=" "
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                     />
                   </Field>
 
-                  <Field label="Postal code">
+                  <Field label="Postal code" filled={postalCode.trim().length > 0}>
                     <input
                       className="field__input"
                       autoComplete="postal-code"
+                      placeholder=" "
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                     />
@@ -438,16 +447,17 @@ export default function Checkout({
 
               {showBusinessFields ? (
                 <div className="business-fields reveal">
-                  <Field label="Business name">
+                  <Field label="Business name" filled={businessName.trim().length > 0}>
                     <input
                       className="field__input"
+                      placeholder=" "
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                     />
                   </Field>
 
                   <div className="field-row">
-                    <Field label="Tax ID type">
+                    <Field label="Tax ID type" filled>
                       <select
                         className="field__input field__input--select"
                         value={taxIdType}
@@ -461,9 +471,10 @@ export default function Checkout({
                         <img src={asset('chevron-down.svg')} alt="" />
                       </span>
                     </Field>
-                    <Field label="Tax ID">
+                    <Field label="Tax ID" filled={taxId.trim().length > 0}>
                       <input
                         className="field__input"
+                        placeholder=" "
                         value={taxId}
                         onChange={(e) => setTaxId(e.target.value)}
                       />
@@ -604,15 +615,20 @@ export default function Checkout({
 
 function Field({
   label,
+  filled,
   children,
 }: {
   label: string
+  /** Force floated label (selects / prefilled values) */
+  filled?: boolean
   children: ReactNode
 }) {
   return (
-    <label className="field">
-      <span className="field__label">{label}</span>
-      <span className="field__control">{children}</span>
+    <label className={`field field--floating${filled ? ' field--filled' : ''}`}>
+      <span className="field__control">
+        {children}
+        <span className="field__label">{label}</span>
+      </span>
     </label>
   )
 }
