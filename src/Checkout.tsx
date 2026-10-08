@@ -18,7 +18,8 @@ import './Checkout.css'
 
 type PaymentMethod = 'card' | 'apple' | 'paypal'
 
-const VAT_RATE = 0.18
+const VAT_RATE = 0.19
+const TAX_CALC_MS = 800
 
 function formatMoney(value: number) {
   return `$${value.toFixed(2)}`
@@ -79,6 +80,8 @@ export default function Checkout({
   const [businessName, setBusinessName] = useState('')
   const [taxIdType, setTaxIdType] = useState('GE VAT')
   const [taxId, setTaxId] = useState('')
+  const [taxLoading, setTaxLoading] = useState(false)
+  const taxTimerRef = useRef<number | null>(null)
 
   // Once unlocked — stays open until leave/remount (Back → Upgrade resets form)
   const [unlockedEmail, setUnlockedEmail] = useState(false)
@@ -156,9 +159,50 @@ export default function Checkout({
     [activeSelection],
   )
   const vatBase = summary.isTrial ? summary.dueToday : summary.totalAfter
-  const vat = showBusinessFields ? Number((vatBase * VAT_RATE).toFixed(2)) : 0
+  // German B2B with company details → reverse charge (0% VAT)
+  const isGermanBusiness =
+    isBusiness &&
+    country === 'Germany' &&
+    businessName.trim().length > 0 &&
+    taxId.trim().length > 0
+  const showTaxRow = showBilling
+  const vat = showTaxRow && !isGermanBusiness ? Number((vatBase * VAT_RATE).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
   const isPro = summary.tone === 'pro'
+  const vatLabel = isGermanBusiness ? 'VAT 0%' : 'VAT 19%'
+
+  function startTaxCalculation() {
+    if (taxTimerRef.current != null) {
+      window.clearTimeout(taxTimerRef.current)
+    }
+    setTaxLoading(true)
+    taxTimerRef.current = window.setTimeout(() => {
+      setTaxLoading(false)
+      taxTimerRef.current = null
+    }, TAX_CALC_MS)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (taxTimerRef.current != null) {
+        window.clearTimeout(taxTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Recalculate when German B2B reverse-charge eligibility changes
+  const germanBusinessKey = isGermanBusiness ? 'de-b2b' : 'consumer'
+  const prevGermanKeyRef = useRef(germanBusinessKey)
+  useEffect(() => {
+    if (!showBilling) {
+      prevGermanKeyRef.current = germanBusinessKey
+      return
+    }
+    if (prevGermanKeyRef.current !== germanBusinessKey) {
+      prevGermanKeyRef.current = germanBusinessKey
+      startTaxCalculation()
+    }
+  }, [showBilling, germanBusinessKey])
 
   const addressLabel = useMemo(
     () => (showExtendedAddress ? 'Address line 1' : 'Address'),
@@ -518,7 +562,20 @@ export default function Checkout({
                 <select
                   className="field__input field__input--select"
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  onChange={(e) => {
+                    const next = e.target.value
+                    setCountry(next)
+                    if (next === 'Germany') {
+                      setTaxIdType('EU VAT')
+                    } else if (next === 'United States') {
+                      setTaxIdType('US EIN')
+                    } else if (next === 'Georgia') {
+                      setTaxIdType('GE VAT')
+                    } else {
+                      setTaxIdType('EU VAT')
+                    }
+                    startTaxCalculation()
+                  }}
                 >
                   <option>Georgia</option>
                   <option>United States</option>
@@ -777,10 +834,16 @@ export default function Checkout({
                   </>
                 ) : null}
 
-                {showBusinessFields ? (
+                {showTaxRow ? (
                   <div className="summary__row reveal">
-                    <span>VAT 18%</span>
-                    <span>{formatMoney(vat)}</span>
+                    <span>{vatLabel}</span>
+                    <span aria-busy={taxLoading}>
+                      {taxLoading ? (
+                        <span className="summary__skeleton" aria-hidden="true" />
+                      ) : (
+                        formatMoney(vat)
+                      )}
+                    </span>
                   </div>
                 ) : null}
               </div>
@@ -789,7 +852,13 @@ export default function Checkout({
                 <>
                   <div className="summary__total">
                     <span>Due today</span>
-                    <span>{formatMoney(total)}</span>
+                    <span aria-busy={taxLoading && showTaxRow}>
+                      {taxLoading && showTaxRow ? (
+                        <span className="summary__skeleton summary__skeleton--total" aria-hidden="true" />
+                      ) : (
+                        formatMoney(total)
+                      )}
+                    </span>
                   </div>
                   {summary.cancelNote ? (
                     <p className="summary__note">{summary.cancelNote}</p>
@@ -799,7 +868,13 @@ export default function Checkout({
                 <>
                   <div className="summary__total">
                     <span>Total</span>
-                    <span>{formatMoney(total)}</span>
+                    <span aria-busy={taxLoading && showTaxRow}>
+                      {taxLoading && showTaxRow ? (
+                        <span className="summary__skeleton summary__skeleton--total" aria-hidden="true" />
+                      ) : (
+                        formatMoney(total)
+                      )}
+                    </span>
                   </div>
                   {summary.note ? <p className="summary__note">{summary.note}</p> : null}
                 </>

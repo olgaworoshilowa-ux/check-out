@@ -698,6 +698,46 @@
   color: var(--text-alpha);
 }
 
+.summary__skeleton {
+  display: inline-block;
+  width: 52px;
+  height: 16px;
+  border-radius: 4px;
+  vertical-align: middle;
+  background: linear-gradient(
+    90deg,
+    rgba(28, 28, 28, 0.06) 0%,
+    rgba(28, 28, 28, 0.12) 50%,
+    rgba(28, 28, 28, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: summary-shimmer 1s ease-in-out infinite;
+}
+
+.summary__skeleton--total {
+  width: 64px;
+  height: 20px;
+}
+
+.summary--pro .summary__skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes summary-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 .summary__row-left {
   display: flex;
   align-items: center;
