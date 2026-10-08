@@ -819,7 +819,7 @@ export default function Checkout({
                     <span className="summary__row-left">
                       Annual discount
                       {summary.showAnnualBadge || (allowBillingSwitch && billing === 'annual') ? (
-                        <span className={`badge${isPro ? ' badge--dark' : ''}`}>33% OFF</span>
+                        <span className={`badge${isPro ? ' badge--dark' : ''}`}>75% OFF</span>
                       ) : null}
                     </span>
                     <span>–{formatMoneyCompact(summary.discount)}</span>
