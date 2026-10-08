@@ -236,7 +236,7 @@ export default function Checkout({
           </div>
 
           {paymentMethod === 'card' ? (
-            <div className="card-group">
+            <>
               <Field label="Card number" filled={cardNumber.length > 0}>
                 <input
                   className="field__input"
@@ -261,10 +261,8 @@ export default function Checkout({
                 </div>
               </Field>
 
-              <div className="card-group__row">
-                <label
-                  className={`card-group__cell field--floating${expiration ? ' field--filled' : ''}`}
-                >
+              <div className="field-row">
+                <Field label="Expiration" filled={expiration.length > 0}>
                   <input
                     className="field__input"
                     inputMode="numeric"
@@ -273,11 +271,8 @@ export default function Checkout({
                     value={expiration}
                     onChange={(e) => setExpiration(formatExpiry(e.target.value))}
                   />
-                  <span className="field__label">Expiration</span>
-                </label>
-                <label
-                  className={`card-group__cell field--floating${cvc ? ' field--filled' : ''}`}
-                >
+                </Field>
+                <Field label="Security code" filled={cvc.length > 0}>
                   <input
                     className="field__input"
                     inputMode="numeric"
@@ -287,10 +282,9 @@ export default function Checkout({
                     value={cvc}
                     onChange={(e) => setCvc(digitsOnly(e.target.value).slice(0, 4))}
                   />
-                  <span className="field__label">Security code</span>
-                </label>
+                </Field>
               </div>
-            </div>
+            </>
           ) : paymentMethod === 'paypal' ? (
             <div className="redirect-card reveal">
               <p className="redirect-card__title">PayPal selected.</p>
