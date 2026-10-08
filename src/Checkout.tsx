@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -89,6 +90,10 @@ export default function Checkout({
     expiration?: string
     cvc?: string
   }>({})
+  const cardNumberFieldRef = useRef<HTMLDivElement>(null)
+  const expirationFieldRef = useRef<HTMLDivElement>(null)
+  const cvcFieldRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     if (isCardComplete(cardNumber, expiration, cvc)) {
       setUnlockedEmail(true)
@@ -175,14 +180,30 @@ export default function Checkout({
     }
 
     setCardErrors(next)
-    return Object.keys(next).length === 0
+    return next
   }
 
   function handlePay() {
-    if (paymentMethod === 'card' && !validateCardFields()) {
+    if (paymentMethod !== 'card') {
       return
     }
-    // Prototype — no real charge
+
+    const next = validateCardFields()
+    const hasErrors = Boolean(next.cardNumber || next.expiration || next.cvc)
+    if (!hasErrors) {
+      // Prototype — no real charge
+      return
+    }
+
+    // Scroll to first invalid field so errors are visible
+    const target =
+      (next.cardNumber && cardNumberFieldRef.current) ||
+      (next.expiration && expirationFieldRef.current) ||
+      (next.cvc && cvcFieldRef.current)
+
+    window.setTimeout(() => {
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 50)
   }
 
   function handleSubmit(event: FormEvent) {
@@ -259,80 +280,86 @@ export default function Checkout({
 
           {paymentMethod === 'card' ? (
             <>
-              <Field
-                label="Card number"
-                filled={cardNumber.length > 0}
-                error={cardErrors.cardNumber}
-              >
-                <input
-                  className="field__input"
-                  inputMode="numeric"
-                  autoComplete="cc-number"
-                  placeholder="1424 1424 1424 1424"
-                  value={cardNumber}
-                  aria-invalid={Boolean(cardErrors.cardNumber)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    setCardNumber(formatCardNumber(e.target.value))
-                    if (cardErrors.cardNumber) {
-                      setCardErrors((prev) => ({ ...prev, cardNumber: undefined }))
-                    }
-                  }}
-                />
-                <div className="field__brands" aria-hidden="true">
-                  <span className="brand-badge">
-                    <img src={asset('mastercard.svg')} alt="" />
-                  </span>
-                  <span className="brand-badge">
-                    <img src={asset('visa.svg')} alt="" />
-                  </span>
-                  <span className="brand-badge brand-badge--amex">
-                    <img src={asset('amex.svg')} alt="" />
-                  </span>
-                </div>
-              </Field>
+              <div ref={cardNumberFieldRef}>
+                <Field
+                  label="Card number"
+                  filled={cardNumber.length > 0}
+                  error={cardErrors.cardNumber}
+                >
+                  <input
+                    className="field__input"
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    placeholder="1424 1424 1424 1424"
+                    value={cardNumber}
+                    aria-invalid={Boolean(cardErrors.cardNumber)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      setCardNumber(formatCardNumber(e.target.value))
+                      if (cardErrors.cardNumber) {
+                        setCardErrors((prev) => ({ ...prev, cardNumber: undefined }))
+                      }
+                    }}
+                  />
+                  <div className="field__brands" aria-hidden="true">
+                    <span className="brand-badge">
+                      <img src={asset('mastercard.svg')} alt="" />
+                    </span>
+                    <span className="brand-badge">
+                      <img src={asset('visa.svg')} alt="" />
+                    </span>
+                    <span className="brand-badge brand-badge--amex">
+                      <img src={asset('amex.svg')} alt="" />
+                    </span>
+                  </div>
+                </Field>
+              </div>
 
               <div className="field-row">
-                <Field
-                  label="Expiration"
-                  filled={expiration.length > 0}
-                  error={cardErrors.expiration}
-                >
-                  <input
-                    className="field__input"
-                    inputMode="numeric"
-                    autoComplete="cc-exp"
-                    placeholder="MM/YY"
-                    value={expiration}
-                    aria-invalid={Boolean(cardErrors.expiration)}
-                    onChange={(e) => {
-                      setExpiration(formatExpiry(e.target.value))
-                      if (cardErrors.expiration) {
-                        setCardErrors((prev) => ({ ...prev, expiration: undefined }))
-                      }
-                    }}
-                  />
-                </Field>
-                <Field
-                  label="Security code"
-                  filled={cvc.length > 0}
-                  error={cardErrors.cvc}
-                >
-                  <input
-                    className="field__input"
-                    inputMode="numeric"
-                    autoComplete="cc-csc"
-                    placeholder="CVC"
-                    maxLength={4}
-                    value={cvc}
-                    aria-invalid={Boolean(cardErrors.cvc)}
-                    onChange={(e) => {
-                      setCvc(digitsOnly(e.target.value).slice(0, 4))
-                      if (cardErrors.cvc) {
-                        setCardErrors((prev) => ({ ...prev, cvc: undefined }))
-                      }
-                    }}
-                  />
-                </Field>
+                <div ref={expirationFieldRef} className="field-row__item">
+                  <Field
+                    label="Expiration"
+                    filled={expiration.length > 0}
+                    error={cardErrors.expiration}
+                  >
+                    <input
+                      className="field__input"
+                      inputMode="numeric"
+                      autoComplete="cc-exp"
+                      placeholder="MM/YY"
+                      value={expiration}
+                      aria-invalid={Boolean(cardErrors.expiration)}
+                      onChange={(e) => {
+                        setExpiration(formatExpiry(e.target.value))
+                        if (cardErrors.expiration) {
+                          setCardErrors((prev) => ({ ...prev, expiration: undefined }))
+                        }
+                      }}
+                    />
+                  </Field>
+                </div>
+                <div ref={cvcFieldRef} className="field-row__item">
+                  <Field
+                    label="Security code"
+                    filled={cvc.length > 0}
+                    error={cardErrors.cvc}
+                  >
+                    <input
+                      className="field__input"
+                      inputMode="numeric"
+                      autoComplete="cc-csc"
+                      placeholder="CVC"
+                      maxLength={4}
+                      value={cvc}
+                      aria-invalid={Boolean(cardErrors.cvc)}
+                      onChange={(e) => {
+                        setCvc(digitsOnly(e.target.value).slice(0, 4))
+                        if (cardErrors.cvc) {
+                          setCardErrors((prev) => ({ ...prev, cvc: undefined }))
+                        }
+                      }}
+                    />
+                  </Field>
+                </div>
               </div>
             </>
           ) : paymentMethod === 'paypal' ? (
@@ -662,6 +689,13 @@ export default function Checkout({
               )}
             </div>
           </div>
+
+          {paymentMethod === 'card' &&
+          (cardErrors.cardNumber || cardErrors.expiration || cardErrors.cvc) ? (
+            <p className="pay-error" role="alert">
+              Check card number, expiration, and security code
+            </p>
+          ) : null}
 
           {paymentMethod === 'apple' ? (
             <button
