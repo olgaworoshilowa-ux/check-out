@@ -205,13 +205,15 @@
   background: #fff;
   border: 1px solid var(--neutral-border-beta);
   border-radius: 12px;
-  padding: 12px 16px;
-  min-height: 56px;
+  padding: 10px 16px;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .field--floating .field__control {
-  padding: 22px 16px 8px;
+  padding: 16px 16px 4px;
 }
 
 .field__label {
@@ -243,11 +245,11 @@
 
 .field--floating .field__control:focus-within .field__label,
 .field--floating.field--filled .field__label {
-  top: 8px;
+  top: 4px;
   transform: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 16px;
+  line-height: 14px;
   color: var(--neutral-text-alpha);
 }
 
@@ -266,7 +268,7 @@
   font-family: var(--font);
   font-size: 16px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 20px;
   color: var(--neutral-text-alpha);
   outline: none;
   position: relative;
@@ -353,11 +355,13 @@
 .field-row {
   display: flex;
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 .field-row .field {
   flex: 1;
   min-width: 0;
+  margin-bottom: 0;
 }
 
 .field-row--split {
