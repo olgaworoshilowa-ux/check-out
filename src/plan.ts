@@ -30,7 +30,7 @@ const PREMIUM_ANNUAL = {
   discount: 180,
 } as const
 
-const TRIAL_END_LABEL = '10 Oct, 2026'
+export const TRIAL_END_LABEL = '10 Oct, 2026'
 
 export type SummaryModel = {
   title: string

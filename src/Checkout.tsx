@@ -11,6 +11,7 @@ import { asset } from './assets'
 import {
   buildSummary,
   getBillingSwitcherPrices,
+  TRIAL_END_LABEL,
   type BillingPeriod,
   type CheckoutSelection,
 } from './plan'
@@ -183,6 +184,23 @@ export default function Checkout({
   const total = Number((vatBase + vat).toFixed(2))
   const isPro = summary.tone === 'pro'
   const vatLabel = `VAT ${Math.round(vatRate * 100)}%`
+
+  // Monthly price including location tax (e.g. $4.99 + 19% → $5.94)
+  const effectiveVatRate = showTaxRow ? vatRate : 0
+  const periodWithTax = Number(
+    (summary.totalAfter * (1 + effectiveVatRate)).toFixed(2),
+  )
+  const monthlyWithTax =
+    billing === 'annual'
+      ? Number((periodWithTax / 12).toFixed(2))
+      : periodWithTax
+  const summaryNote = summary.isTrial
+    ? billing === 'annual'
+      ? `From ${TRIAL_END_LABEL}, billed yearly · $${monthlyWithTax.toFixed(2)} a month`
+      : `From ${TRIAL_END_LABEL}, billed monthly · $${monthlyWithTax.toFixed(2)} a month`
+    : billing === 'annual'
+      ? `Billed yearly · $${monthlyWithTax.toFixed(2)} a month`
+      : `Billed monthly · $${monthlyWithTax.toFixed(2)} a month`
 
   function startTaxCalculation() {
     if (taxTimerRef.current != null) {
@@ -834,7 +852,7 @@ export default function Checkout({
                       <span>Total after trial</span>
                       <span>{formatMoney(summary.totalAfter)}</span>
                     </div>
-                    {summary.note ? <p className="summary__note summary__note--flush">{summary.note}</p> : null}
+                    <p className="summary__note summary__note--flush">{summaryNote}</p>
                     <div className="summary__row summary__row--trial">
                       <span className="summary__trial-label">
                         <img
@@ -892,7 +910,7 @@ export default function Checkout({
                       )}
                     </span>
                   </div>
-                  {summary.note ? <p className="summary__note">{summary.note}</p> : null}
+                  <p className="summary__note">{summaryNote}</p>
                 </>
               )}
             </div>
