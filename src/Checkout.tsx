@@ -22,6 +22,7 @@ const VAT_RATES: Record<string, number> = {
   Georgia: 0.18,
   Germany: 0.19,
   France: 0.19,
+  Lithuania: 0.21,
   'United Kingdom': 0.2,
   'United States': 0,
 }
@@ -577,7 +578,7 @@ export default function Checkout({
                   onChange={(e) => {
                     const next = e.target.value
                     setCountry(next)
-                    if (next === 'Germany') {
+                    if (next === 'Germany' || next === 'Lithuania') {
                       setTaxIdType('EU VAT')
                     } else if (next === 'United States') {
                       setTaxIdType('US EIN')
@@ -594,6 +595,7 @@ export default function Checkout({
                   <option>United Kingdom</option>
                   <option>Germany</option>
                   <option>France</option>
+                  <option>Lithuania</option>
                 </select>
                 <span className="field__chevron" aria-hidden="true">
                   <img src={asset('chevron-down.svg')} alt="" />
