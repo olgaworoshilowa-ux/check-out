@@ -176,8 +176,8 @@ export default function Checkout({
     country === 'Germany' &&
     businessName.trim().length > 0 &&
     taxId.trim().length > 0
-  // France: never show VAT row (even with business checkbox)
-  const showTaxRow = showBilling && country !== 'France'
+  // Location tax in summary from the start; France: never show (even with business)
+  const showTaxRow = country !== 'France'
   const vatRate = isGermanBusiness ? 0 : getVatRate(country)
   const vat = showTaxRow ? Number((vatBase * vatRate).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
