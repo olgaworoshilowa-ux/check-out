@@ -20,11 +20,9 @@ import './Checkout.css'
 type PaymentMethod = 'card' | 'apple' | 'paypal'
 
 const VAT_RATES: Record<string, number> = {
-  Georgia: 0.18,
+  Georgia: 0,
   Germany: 0.19,
   Lithuania: 0.21,
-  'United Kingdom': 0.2,
-  'United States': 0,
 }
 const TAX_CALC_MS = 800
 
@@ -594,11 +592,7 @@ export default function Checkout({
                   onChange={(e) => {
                     const next = e.target.value
                     setCountry(next)
-                    if (next === 'Germany' || next === 'Lithuania') {
-                      setTaxIdType('EU VAT')
-                    } else if (next === 'United States') {
-                      setTaxIdType('US EIN')
-                    } else if (next === 'Georgia') {
+                    if (next === 'Georgia') {
                       setTaxIdType('GE VAT')
                     } else {
                       setTaxIdType('EU VAT')
@@ -607,8 +601,6 @@ export default function Checkout({
                   }}
                 >
                   <option>Georgia</option>
-                  <option>United States</option>
-                  <option>United Kingdom</option>
                   <option>Germany</option>
                   <option>Lithuania</option>
                 </select>
