@@ -18,8 +18,18 @@ import './Checkout.css'
 
 type PaymentMethod = 'card' | 'apple' | 'paypal'
 
-const VAT_RATE = 0.19
+const VAT_RATES: Record<string, number> = {
+  Georgia: 0.18,
+  Germany: 0.19,
+  France: 0.19,
+  'United Kingdom': 0.2,
+  'United States': 0,
+}
 const TAX_CALC_MS = 800
+
+function getVatRate(country: string) {
+  return VAT_RATES[country] ?? 0.19
+}
 
 function formatMoney(value: number) {
   return `$${value.toFixed(2)}`
@@ -166,10 +176,11 @@ export default function Checkout({
     businessName.trim().length > 0 &&
     taxId.trim().length > 0
   const showTaxRow = showBilling
-  const vat = showTaxRow && !isGermanBusiness ? Number((vatBase * VAT_RATE).toFixed(2)) : 0
+  const vatRate = isGermanBusiness ? 0 : getVatRate(country)
+  const vat = showTaxRow ? Number((vatBase * vatRate).toFixed(2)) : 0
   const total = Number((vatBase + vat).toFixed(2))
   const isPro = summary.tone === 'pro'
-  const vatLabel = isGermanBusiness ? 'VAT 0%' : 'VAT 19%'
+  const vatLabel = `VAT ${Math.round(vatRate * 100)}%`
 
   function startTaxCalculation() {
     if (taxTimerRef.current != null) {
